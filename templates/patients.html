@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% set page_title = 'DermoAI | Patient History' %}
+  {% include "_head.html" %}
+</head>
+<body>
+  {% include "_background.html" %}
+  {% include "_nav.html" %}
+
+  <main class="page">
+    {% include "_messages.html" %}
+
+    <section class="page-hero reveal">
+      <div>
+        <p class="eyebrow">Patient history</p>
+        <h1>Analyzed cases</h1>
+        <p>Search and review saved AI assessments with confidence, risk status, and timestamps.</p>
+      </div>
+      <a class="btn btn-primary compact" href="{{ url_for('predict') }}">New Analysis</a>
+    </section>
+
+    {% if patients %}
+      <section class="glass-card table-panel reveal">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Records</p>
+            <h2>{{ patients|length }} saved case(s)</h2>
+          </div>
+          <label class="search-wrap">
+            <span>Search patients</span>
+            <input class="search" id="search" type="search" placeholder="Search name, risk, date..." oninput="filterRows()">
+          </label>
+        </div>
+        <div class="table-wrap">
+          <table id="patients-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Patient</th>
+                <th>Age</th>
+                <th>Risk</th>
+                <th>Confidence</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in patients %}
+                {% set score = (p.probability * 100)|round(1) %}
+                {% set row_risk = 'high' if score >= 75 else 'medium' if score >= 50 else 'low' %}
+                {% set row_label = 'High Risk' if row_risk == 'high' else 'Medium Risk' if row_risk == 'medium' else 'Low Risk' %}
+                <tr>
+                  <td><img class="thumb" src="/{{ p.image_path }}" alt="Image {{ p.name }}"></td>
+                  <td><strong>{{ p.name }}</strong></td>
+                  <td>{{ p.age }} years</td>
+                  <td><span class="risk-badge {{ row_risk }}">{{ row_label }}</span></td>
+                  <td>
+                    <div class="mini-score">
+                      <span style="width: {{ score }}%;"></span>
+                    </div>
+                    {{ score }}%
+                  </td>
+                  <td>{{ p.created_at.strftime('%d/%m/%Y %H:%M') if p.created_at else '-' }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    {% else %}
+      <section class="glass-card empty-state reveal">
+        <div class="empty-visual" aria-hidden="true">
+          {% include "_skin_visual.html" %}
+        </div>
+        <h2>No patient records yet</h2>
+        <p>Run the first lesion analysis to begin building the clinical history.</p>
+        <a class="btn btn-primary compact" href="{{ url_for('predict') }}">Start Analysis</a>
+      </section>
+    {% endif %}
+  </main>
+
+  <script>
+    function filterRows() {
+      const query = document.getElementById('search').value.toLowerCase();
+      document.querySelectorAll('#patients-table tbody tr').forEach((row) => {
+        row.style.display = row.textContent.toLowerCase().includes(query) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>

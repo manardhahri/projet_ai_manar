@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% set page_title = 'DermoAI | Upload Lesion Image' %}
+  {% include "_head.html" %}
+</head>
+<body>
+  {% include "_background.html" %}
+  {% include "_nav.html" %}
+
+  <main class="page">
+    {% include "_messages.html" %}
+
+    <section class="page-hero upload-hero reveal">
+      <div>
+        <p class="eyebrow">AI lesion analysis</p>
+        <h1>Upload a dermatology image</h1>
+        <p>
+          Submit a clear lesion photo for fast AI-assisted risk screening, confidence
+          scoring, and explainable visual review.
+        </p>
+      </div>
+      <a class="btn btn-secondary compact" href="{{ url_for('patients') }}">Patient History</a>
+    </section>
+
+    <section class="analysis-layout">
+      <form method="POST" enctype="multipart/form-data" class="glass-card upload-card form-stack reveal" id="predict-form" data-loading-form>
+        <div class="field-grid">
+          <label>
+            <span>Patient name</span>
+            <input type="text" name="name" placeholder="Example: Amira Ben Ali" required>
+          </label>
+          <label>
+            <span>Age</span>
+            <input type="number" name="age" placeholder="Example: 42" min="1" max="120" required>
+          </label>
+        </div>
+
+        <label class="upload-box" for="image-input" data-dropzone>
+          <span>Lesion image</span>
+          <input id="image-input" type="file" name="image" accept="image/*" required>
+          <div class="upload-preview" id="upload-preview">
+            <span class="upload-icon"></span>
+            <strong>Drag and drop an image, or browse files</strong>
+            <small>Supported: JPG, JPEG, PNG, WEBP. Use sharp, well-lit images with the lesion centered.</small>
+          </div>
+        </label>
+
+        <div class="quality-tips" aria-label="Image quality tips">
+          <span>Good lighting</span>
+          <span>Centered lesion</span>
+          <span>No heavy blur</span>
+        </div>
+
+        <button class="btn btn-primary" type="submit" id="submit-button" data-loading-button data-loading-label="Analyzing image...">
+          Run AI Analysis
+        </button>
+      </form>
+
+      <aside class="glass-card clinical-note reveal">
+        <div class="aside-visual" aria-hidden="true">
+          {% include "_skin_visual.html" %}
+        </div>
+        <p class="eyebrow">Processing pipeline</p>
+        <h2>Built for clean clinical review</h2>
+        <ol class="timeline">
+          <li><span>1</span> Secure local upload to the application workspace.</li>
+          <li><span>2</span> Image normalization to 224 x 224 pixels.</li>
+          <li><span>3</span> VGG16 prediction with confidence scoring.</li>
+          <li><span>4</span> Result and explainability images saved to history.</li>
+        </ol>
+        {% if model_mode != 'tensorflow' %}
+          <div class="flash flash-warning">
+            Demo mode is active. Install TensorFlow and the model file for live model inference.
+          </div>
+        {% endif %}
+      </aside>
+    </section>
+
+    <section class="glass-card table-panel scan-history reveal">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Scan history tracking</p>
+          <h2>Recent scans</h2>
+        </div>
+        <a href="{{ url_for('patients') }}">Full history</a>
+      </div>
+      {% if latest_scans %}
+        <div class="recent-list">
+          {% for p in latest_scans %}
+            <div class="recent-row">
+              <img src="/{{ p.image_path }}" alt="Image {{ p.name }}">
+              <div>
+                <strong>{{ p.name }}</strong>
+                <span>{{ p.age }} years</span>
+              </div>
+              <span class="risk-badge {{ 'high' if (p.probability * 100) >= 75 else 'medium' if (p.probability * 100) >= 50 else 'low' }}">
+                {{ 'High Risk' if (p.probability * 100) >= 75 else 'Medium Risk' if (p.probability * 100) >= 50 else 'Low Risk' }}
+              </span>
+              <span class="score">{{ (p.probability * 100)|round(1) }}%</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state compact">
+          <h3>No scans tracked yet</h3>
+          <p>Completed analyses will appear here automatically.</p>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>

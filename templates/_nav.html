@@ -1,0 +1,15 @@
+<header class="topbar">
+  <a class="brand" href="{{ url_for('dashboard') }}">
+    <span class="brand-symbol"><span></span></span>
+    <span>DermoAI</span>
+  </a>
+  <nav aria-label="Primary navigation">
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('predict') }}">Upload</a>
+    <a href="{{ url_for('patients') }}">Patients</a>
+    <button class="theme-toggle" type="button" data-theme-toggle>
+      <span></span>
+    </button>
+    <a class="logout" href="{{ url_for('logout') }}">Logout</a>
+  </nav>
+</header>

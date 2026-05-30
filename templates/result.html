@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% set page_title = 'DermoAI | Analysis Result' %}
+  {% include "_head.html" %}
+</head>
+<body>
+  {% include "_background.html" %}
+  {% include "_nav.html" %}
+
+  {% set risk_class = 'high' if prob >= 75 else 'medium' if prob >= 50 else 'low' %}
+  {% set risk_label = 'High Risk' if risk_class == 'high' else 'Medium Risk' if risk_class == 'medium' else 'Low Risk' %}
+
+  <main class="page">
+    {% include "_messages.html" %}
+
+    <section class="result-hero risk-{{ risk_class }} reveal">
+      <div>
+        <p class="eyebrow">AI diagnostic summary</p>
+        <h1>{{ risk_label }}</h1>
+        <p>Patient: <strong>{{ name }}</strong> / Age: <strong>{{ age }} years</strong></p>
+      </div>
+      <div class="result-meta">
+        <div class="confidence-ring" style="--score: {{ prob }}%;">
+          <span>{{ prob }}%</span>
+        </div>
+        <span class="risk-badge {{ risk_class }}">{{ risk_label }}</span>
+      </div>
+    </section>
+
+    <section class="result-grid">
+      <article class="glass-card image-card reveal">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Uploaded image</p>
+            <h2>Lesion preview</h2>
+          </div>
+          <span class="model-pill">{{ result }}</span>
+        </div>
+        <img class="main-image" src="/{{ img }}" alt="Analyzed skin lesion image">
+      </article>
+
+      <article class="glass-card summary-card reveal">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Confidence</p>
+            <h2>AI assessment</h2>
+          </div>
+          <span>{{ 'VGG16' if model_mode == 'tensorflow' else 'Demo mode' }}</span>
+        </div>
+        <div class="progress-track" aria-label="AI confidence score">
+          <div class="progress-fill" style="width: {{ prob }}%;"></div>
+        </div>
+        <div class="insight-grid">
+          <div>
+            <span>Classification</span>
+            <strong>{{ result }}</strong>
+          </div>
+          <div>
+            <span>Risk badge</span>
+            <strong>{{ risk_label }}</strong>
+          </div>
+          <div>
+            <span>Confidence</span>
+            <strong>{{ prob }}%</strong>
+          </div>
+          <div>
+            <span>Image quality</span>
+            <strong>{{ image_quality.label if image_quality else 'Not checked' }}</strong>
+          </div>
+        </div>
+        {% if image_quality %}
+          <div class="quality-meter">
+            <div class="section-title compact-title">
+              <span>Quality score</span>
+              <strong>{{ image_quality.score }}%</strong>
+            </div>
+            <div class="progress-track">
+              <div class="quality-fill" style="width: {{ image_quality.score }}%;"></div>
+            </div>
+            <ul class="quality-list">
+              {% for tip in image_quality.tips %}
+                <li>{{ tip }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+        <p class="disclaimer">
+          This tool supports review and education. Final medical decisions must be validated by a qualified clinician.
+        </p>
+      </article>
+
+      <article class="glass-card xai-card reveal">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Explainable AI</p>
+            <h2>Heatmap visualization</h2>
+          </div>
+          <span>{{ 'Grad-CAM' if gradcam else 'Pending' }}</span>
+        </div>
+        {% if gradcam %}
+          <div class="xai-grid">
+            <figure>
+              <img src="/{{ gradcam }}" alt="Grad-CAM lesion heatmap overlay">
+              <figcaption>Grad-CAM overlay</figcaption>
+            </figure>
+            <figure>
+              <img src="/{{ heatmap }}" alt="AI heatmap">
+              <figcaption>Heatmap</figcaption>
+            </figure>
+            <figure>
+              <img src="/{{ attention }}" alt="Attention map">
+              <figcaption>Attention map</figcaption>
+            </figure>
+          </div>
+        {% else %}
+          <div class="heatmap-placeholder" aria-hidden="true">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="empty-state compact">
+            <h3>Explainability not generated</h3>
+            <p>Grad-CAM will appear when TensorFlow and the VGG16 model are loaded.</p>
+          </div>
+        {% endif %}
+      </article>
+    </section>
+
+    <div class="action-row">
+      <a class="btn btn-primary compact" href="{{ url_for('predict') }}">New Analysis</a>
+      <a class="btn btn-secondary compact" href="{{ url_for('patients') }}">View Patients</a>
+      <a class="btn btn-secondary compact" href="{{ url_for('dashboard') }}">Dashboard</a>
+    </div>
+  </main>
+</body>
+</html>

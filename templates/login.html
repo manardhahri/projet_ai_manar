@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% set page_title = 'DermoAI | AI-Powered Skin Cancer Detection' %}
+  {% include "_head.html" %}
+</head>
+<body class="auth-shell">
+  {% include "_background.html" %}
+
+  <button class="theme-toggle floating-theme" type="button" data-theme-toggle>
+    <span></span>
+  </button>
+
+  <main class="landing-page">
+    <section class="landing-hero">
+      <div class="hero-copy reveal">
+        <p class="eyebrow">Dermatology Skin Cancer AI</p>
+        <h1>AI-Powered Skin Cancer Detection</h1>
+        <p class="hero-subtitle">
+          Fast, structured lesion analysis with confidence scoring, patient history,
+          and explainable AI visuals for clinical review.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#login-card">Upload Image</a>
+          <a class="btn btn-secondary" href="#platform-details">Learn More</a>
+        </div>
+        <div class="trust-strip" aria-label="Platform highlights">
+          <span>VGG16 model</span>
+          <span>Grad-CAM ready</span>
+          <span>Secure local history</span>
+        </div>
+      </div>
+
+      <div class="hero-illustration reveal" aria-hidden="true">
+        {% include "_skin_visual.html" %}
+        <div class="ai-glass-card ai-card-primary">
+          <span>AI scan</span>
+          <strong>224 x 224</strong>
+          <small>dermoscopy input</small>
+        </div>
+        <div class="ai-glass-card ai-card-secondary">
+          <span>Clinical signal</span>
+          <strong>Risk map</strong>
+          <small>heatmap overlay</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="auth-card glass-card reveal" id="login-card" aria-labelledby="login-title">
+      <div class="card-heading">
+        <p class="eyebrow">Professional access</p>
+        <h2 id="login-title">Sign in to analyze lesions</h2>
+        <p>Use your clinical workspace credentials to access upload, analysis, and patient history.</p>
+      </div>
+
+      {% include "_messages.html" %}
+
+      <form method="POST" class="form-stack" data-loading-form>
+        <label>
+          <span>Username</span>
+          <input type="text" name="username" placeholder="admin" required autocomplete="username">
+        </label>
+        <label>
+          <span>Password</span>
+          <input type="password" name="password" placeholder="1234" required autocomplete="current-password">
+        </label>
+        <button class="btn btn-primary" type="submit" data-loading-button data-loading-label="Opening workspace...">
+          Sign in
+        </button>
+      </form>
+
+      <p class="hint">Default account: admin / 1234</p>
+    </section>
+
+    <section class="feature-strip reveal" id="platform-details" aria-label="Platform capabilities">
+      <article class="feature-card">
+        <span class="feature-icon icon-shield"></span>
+        <h2>Medical-grade clarity</h2>
+        <p>Readable cards, accessible contrast, and calm visual hierarchy for confident review.</p>
+      </article>
+      <article class="feature-card">
+        <span class="feature-icon icon-scan"></span>
+        <h2>Explainable AI</h2>
+        <p>Heatmap and attention views are integrated when Grad-CAM outputs are available.</p>
+      </article>
+      <article class="feature-card">
+        <span class="feature-icon icon-layers"></span>
+        <h2>Skin-layer context</h2>
+        <p>Subtle epidermis, dermis, and hypodermis visuals add depth without distracting.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+skin_cancer.db
+static/uploads/*
+!static/uploads/.gitkeep
+server*.log

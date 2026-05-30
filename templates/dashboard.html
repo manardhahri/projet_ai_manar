@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% set page_title = 'DermoAI | Clinical Dashboard' %}
+  {% include "_head.html" %}
+</head>
+<body>
+  {% include "_background.html" %}
+  {% include "_nav.html" %}
+
+  <main class="page">
+    {% include "_messages.html" %}
+
+    <section class="page-hero dashboard-hero reveal">
+      <div>
+        <p class="eyebrow">Clinical command center</p>
+        <h1>Dermatology AI Dashboard</h1>
+        <p>
+          Monitor lesion analyses, model status, and patient history from a calm,
+          medical-grade workspace designed for repeated clinical use.
+        </p>
+      </div>
+      <div class="hero-visual compact" aria-hidden="true">
+        {% include "_skin_visual.html" %}
+      </div>
+      <a class="btn btn-primary compact" href="{{ url_for('predict') }}">New Analysis</a>
+    </section>
+
+    <section class="stats-grid" aria-label="Clinical metrics">
+      <article class="metric-card glass-card reveal">
+        <span class="metric-icon icon-total"></span>
+        <small>Total analyses</small>
+        <strong>{{ total }}</strong>
+        <p>registered cases</p>
+      </article>
+      <article class="metric-card glass-card risk-high reveal">
+        <span class="metric-icon icon-risk"></span>
+        <small>High-risk signal</small>
+        <strong>{{ malignant }}</strong>
+        <p>malignant classifications</p>
+      </article>
+      <article class="metric-card glass-card risk-low reveal">
+        <span class="metric-icon icon-clear"></span>
+        <small>Low-risk signal</small>
+        <strong>{{ benign }}</strong>
+        <p>benign classifications</p>
+      </article>
+      <article class="metric-card glass-card reveal">
+        <span class="metric-icon icon-model"></span>
+        <small>AI model</small>
+        <strong>{{ 'VGG16' if model_mode == 'tensorflow' else 'Demo' }}</strong>
+        <p>{{ 'TensorFlow active' if model_mode == 'tensorflow' else 'demo mode active' }}</p>
+      </article>
+    </section>
+
+    <section class="dashboard-grid">
+      <article class="glass-card chart-card reveal">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Risk distribution</p>
+            <h2>Case mix</h2>
+          </div>
+          <span>{{ total }} total</span>
+        </div>
+        <div class="risk-bars">
+          <div>
+            <span>High risk</span>
+            <div class="bar-track">
+              <span class="bar-fill high" style="width: {{ ((malignant / total) * 100)|round(0) if total else 0 }}%;"></span>
+            </div>
+          </div>
+          <div>
+            <span>Low risk</span>
+            <div class="bar-track">
+              <span class="bar-fill low" style="width: {{ ((benign / total) * 100)|round(0) if total else 0 }}%;"></span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article class="glass-card workflow-card reveal">
+        <div class="section-title">
+          <div>
+            <p class="eyebrow">Workflow</p>
+            <h2>Clinical pipeline</h2>
+          </div>
+        </div>
+        <ol class="timeline">
+          <li><span>1</span> Upload a clear lesion image.</li>
+          <li><span>2</span> Review AI confidence and risk badge.</li>
+          <li><span>3</span> Inspect explainable AI heatmaps.</li>
+          <li><span>4</span> Save the record to patient history.</li>
+        </ol>
+      </article>
+    </section>
+
+    <section class="workspace-grid">
+      <a class="work-tile glass-card reveal" href="{{ url_for('predict') }}">
+        <span class="tile-mark">01</span>
+        <h2>Analyze lesion</h2>
+        <p>Add patient details, upload an image, and generate a structured AI assessment.</p>
+      </a>
+      <a class="work-tile glass-card reveal" href="{{ url_for('patients') }}">
+        <span class="tile-mark">02</span>
+        <h2>Review history</h2>
+        <p>Search saved diagnoses with thumbnails, dates, and confidence scores.</p>
+      </a>
+    </section>
+
+    <section class="glass-card table-panel reveal">
+      <div class="section-title">
+        <div>
+          <p class="eyebrow">Recent activity</p>
+          <h2>Latest analyses</h2>
+        </div>
+        <a href="{{ url_for('patients') }}">View all</a>
+      </div>
+      {% if latest %}
+        <div class="recent-list">
+          {% for p in latest %}
+            <div class="recent-row">
+              <img src="/{{ p.image_path }}" alt="Image {{ p.name }}">
+              <div>
+                <strong>{{ p.name }}</strong>
+                <span>{{ p.age }} years</span>
+              </div>
+              <span class="risk-badge {{ 'high' if p.result == 'Malignant' else 'low' }}">
+                {{ 'High Risk' if p.result == 'Malignant' else 'Low Risk' }}
+              </span>
+              <span class="score">{{ (p.probability * 100)|round(1) }}%</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <h3>No analyses yet</h3>
+          <p>Your first prediction will appear here after an image is processed.</p>
+        </div>
+      {% endif %}
+    </section>
+  </main>
+</body>
+</html>
