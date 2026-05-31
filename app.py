@@ -243,6 +243,56 @@ def assess_image_quality(path: Path) -> dict[str, object]:
     }
 
 
+def build_result_analysis(result: str, probability: float, image_quality: dict[str, object]) -> dict[str, object]:
+    confidence = probability * 100
+    quality_score = int(image_quality.get("score", 0)) if image_quality else 0
+
+    if result == "Malignant":
+        title = "Suspicious lesion pattern detected"
+        summary = (
+            "The model found visual patterns that are closer to malignant examples in its training data. "
+            "This does not replace a clinical diagnosis, but it should be treated as a priority case for review."
+        )
+        actions = [
+            "Refer the patient to a dermatologist or qualified clinician for confirmation.",
+            "Compare the lesion with previous images if available, especially changes in size, border, or color.",
+            "Keep the original image and AI report in the patient record.",
+        ]
+    else:
+        title = "Benign-leaning lesion pattern"
+        summary = (
+            "The model found visual patterns that are closer to benign examples. "
+            "This result is reassuring, but continued observation is recommended if the lesion changes."
+        )
+        actions = [
+            "Recommend routine monitoring and patient education about visible changes.",
+            "Repeat the scan with a clearer image if the lesion is new, evolving, painful, or bleeding.",
+            "Escalate to medical review when clinical symptoms conflict with the AI result.",
+        ]
+
+    if confidence >= 80:
+        confidence_note = "The model confidence is high, so the prediction is internally consistent."
+    elif confidence >= 60:
+        confidence_note = "The model confidence is moderate; review the image and clinical context carefully."
+    else:
+        confidence_note = "The model confidence is low; this result should be considered uncertain."
+
+    if quality_score >= 75:
+        quality_note = "Image quality is acceptable for screening."
+    elif quality_score >= 55:
+        quality_note = "Image quality is usable, but a sharper and better-lit photo would improve reliability."
+    else:
+        quality_note = "Image quality is weak; retake the photo before relying on the analysis."
+
+    return {
+        "title": title,
+        "summary": summary,
+        "confidence_note": confidence_note,
+        "quality_note": quality_note,
+        "actions": actions,
+    }
+
+
 def predict_probability(path: Path, img_arr: np.ndarray) -> float:
     if model is None:
         return float(demo_prediction(path))
@@ -398,6 +448,7 @@ def predict():
             img_arr = prepare_image(upload_path)
             probability = predict_probability(upload_path, img_arr)
             result = "Malignant" if probability >= 0.5 else "Benign"
+            result_analysis = build_result_analysis(result, probability, image_quality)
             xai_paths = save_xai_images(upload_path, Path(upload_name).stem, img_arr)
             image_url = stored_to_url(upload_path)
 
@@ -433,6 +484,7 @@ def predict():
                 attention=xai_paths["attention"],
                 model_mode=MODEL_MODE,
                 image_quality=image_quality,
+                result_analysis=result_analysis,
             )
         except Exception as error:
             flash(f"Erreur systeme : {error}", "danger")

@@ -85,6 +85,23 @@
             </ul>
           </div>
         {% endif %}
+        {% if result_analysis %}
+          <div class="analysis-description">
+            <p class="eyebrow">Description analysis</p>
+            <h3>{{ result_analysis.title }}</h3>
+            <p>{{ result_analysis.summary }}</p>
+            <div class="analysis-notes">
+              <span>{{ result_analysis.confidence_note }}</span>
+              <span>{{ result_analysis.quality_note }}</span>
+            </div>
+            <h4>Recommended actions</h4>
+            <ul>
+              {% for action in result_analysis.actions %}
+                <li>{{ action }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
         <p class="disclaimer">
           This tool supports review and education. Final medical decisions must be validated by a qualified clinician.
         </p>
